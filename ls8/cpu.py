@@ -10,6 +10,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [None] * 8
         self.pc = 0
+        self.running = False
 
     def load(self):
         """Load a program into memory."""
@@ -64,7 +65,33 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        HLT = 0b00000001
+        LDI = 0b10000010
+        PRN = 0b01000111
+
+        self.running = True
+        # read memory address stored in PC
+        # store in IR
+        ir = self.ram[self.pc]
+        operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
+
+        while self.running:
+            if ir == HLT:
+                print('Shutting Down... Goodbye')
+                self.running = False
+                sys.exit(1)
+            elif ir == LDI:
+                reg = self.ram[self.pc + 1]
+                val = self.ram[self.pc + 2]
+                self.reg[reg] = val
+
+                self.pc += 3
+            elif ir == PRN:
+                reg = self.ram[self.pc + 1]
+                print(self.reg[reg])
+
+                self.pc += 2
+
 
     def ram_read(self, address):
         return self.ram[address]
