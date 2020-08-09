@@ -5,7 +5,13 @@
 import sys
 from cpu import *
 
-cpu = CPU()
+if len(sys.argv) < 2:
+  print('Please provide a path to a program file.')
+  print('Usage:   python3 ls8.py [PATH_TO_FILE]')
+  sys.exit()
 
-cpu.load()
+cpu = CPU()
+path = sys.argv[1]
+
+cpu.load(path)
 cpu.run()
