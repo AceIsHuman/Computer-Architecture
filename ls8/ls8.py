@@ -8,7 +8,7 @@ from cpu import *
 if len(sys.argv) < 2:
   print('Please provide a path to a program file.')
   print('Usage:   python3 ls8.py [PATH_TO_FILE]')
-  sys.exit()
+  sys.exit(1)
 
 cpu = CPU()
 path = sys.argv[1]
