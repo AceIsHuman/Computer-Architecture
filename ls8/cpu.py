@@ -70,29 +70,35 @@ class CPU:
         HLT = 0b00000001
         LDI = 0b10000010
         PRN = 0b01000111
+        ADD = 0b10100000
 
         self.running = True
         # read memory address stored in PC
         # store in IR
-        ir = self.ram[self.pc]
 
         while self.running:
+            ir = self.ram_read(self.pc)
+            num_operands = ir >> 6
+
             if ir == HLT:
                 print('Shutting Down... Goodbye')
                 self.running = False
-                sys.exit(1)
+                sys.exit(0)
+
             elif ir == LDI:
-                reg = self.ram[self.pc + 1]
-                val = self.ram[self.pc + 2]
+                reg = self.ram_read(self.pc + 1)
+                val = self.ram_read(self.pc + 2)
                 self.reg[reg] = val
 
-                self.pc += 3
             elif ir == PRN:
-                reg = self.ram[self.pc + 1]
+                reg = self.ram_read(self.pc + 1)
                 print(self.reg[reg])
 
-                self.pc += 2
-
+            elif ir == ADD:
+                operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
+                self.alu("ADD", operand_a, operand_b)
+            
+            self.pc += num_operands + 1
 
     def ram_read(self, mar):
         return self.ram[mar]
