@@ -75,6 +75,34 @@ class CPU:
         ADD = 0b10100000
         MUL = 0b10100010
 
+        def hlt():
+            print('Shutting Down... Goodbye')
+            self.running = False
+            sys.exit(0)
+
+        def ldi():
+            reg = self.ram_read(self.pc + 1)
+            val = self.ram_read(self.pc + 2)
+            self.reg[reg] = val
+
+        def prn():
+            reg = self.ram_read(self.pc + 1)
+            print(self.reg[reg])
+
+        def add():
+            operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
+            self.alu("ADD", operand_a, operand_b)
+        def mul():
+            operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
+            self.alu("MUL", operand_a, operand_b)
+
+        instructions = {}
+        instructions[HLT] = hlt
+        instructions[LDI] = ldi
+        instructions[PRN] = prn
+        instructions[ADD] = add
+        instructions[MUL] = mul
+
         self.running = True
         # read memory address stored in PC
         # store in IR
@@ -82,28 +110,7 @@ class CPU:
         while self.running:
             ir = self.ram_read(self.pc)
             num_operands = ir >> 6
-
-            if ir == HLT:
-                print('Shutting Down... Goodbye')
-                self.running = False
-                sys.exit(0)
-
-            elif ir == LDI:
-                reg = self.ram_read(self.pc + 1)
-                val = self.ram_read(self.pc + 2)
-                self.reg[reg] = val
-
-            elif ir == PRN:
-                reg = self.ram_read(self.pc + 1)
-                print(self.reg[reg])
-
-            elif ir == ADD:
-                operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
-                self.alu("ADD", operand_a, operand_b)
-            elif ir == MUL:
-                operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
-                self.alu("MUL", operand_a, operand_b)
-            
+            instructions[ir]()
             self.pc += num_operands + 1
 
     def ram_read(self, mar):
