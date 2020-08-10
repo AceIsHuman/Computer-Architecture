@@ -75,7 +75,6 @@ class CPU:
         # read memory address stored in PC
         # store in IR
         ir = self.ram[self.pc]
-        operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
 
         while self.running:
             if ir == HLT:
@@ -95,8 +94,8 @@ class CPU:
                 self.pc += 2
 
 
-    def ram_read(self, address):
-        return self.ram[address]
+    def ram_read(self, mar):
+        return self.ram[mar]
 
-    def ram_write(self, value, address):
-        self.ram[address] = value
+    def ram_write(self, mdr, mar):
+        self.ram[mar] = mdr
