@@ -30,7 +30,7 @@ class CPU:
 
                     if possible_num[0] == '1' or possible_num[0] == '0':
                         num = possible_num[:8]
-                        self.ram[address] = int(num)
+                        self.ram_write(int(num, 2), address)
                         address += 1
             file.close()
         except FileNotFoundError:
