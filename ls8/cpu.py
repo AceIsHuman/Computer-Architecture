@@ -9,6 +9,10 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256
         self.reg = [None] * 8
+        # R5 is reserved as the interrupt mask (IM)
+        # R6 is reserved as the interrupt status (IS)
+        # R7 is reserved as the stack pointer (SP)
+        self.reg[7] = 0xF4
         self.pc = 0
         self.running = False
 
@@ -69,11 +73,13 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        HLT = 0b00000001
-        LDI = 0b10000010
-        PRN = 0b01000111
-        ADD = 0b10100000
-        MUL = 0b10100010
+        HLT  = 0b00000001
+        LDI  = 0b10000010
+        PRN  = 0b01000111
+        ADD  = 0b10100000
+        MUL  = 0b10100010
+        PUSH = 0b01000101
+        POP  = 0b01000110
 
         def hlt():
             print('Shutting Down... Goodbye')
@@ -96,12 +102,32 @@ class CPU:
             operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
             self.alu("MUL", operand_a, operand_b)
 
+        def push():
+            # decrement stack pointer
+            self.reg[7] -= 1
+            # read register value
+            reg = self.ram_read(self.pc + 1)
+            val = self.reg[reg]
+            # write to ram at stack pointer
+            self.ram_write(val, self.reg[7])        
+
+        def pop():
+            # get value at current stack pointer address
+            val = self.ram_read(self.reg[7])
+            # store value at given register
+            reg = self.ram_read(self.pc + 1)
+            self.reg[reg] = val
+            # increment stack pointer
+            self.reg[7] += 1
+  
         instructions = {}
         instructions[HLT] = hlt
         instructions[LDI] = ldi
         instructions[PRN] = prn
         instructions[ADD] = add
         instructions[MUL] = mul
+        instructions[PUSH] = push
+        instructions[POP] = pop
 
         self.running = True
         # read memory address stored in PC
