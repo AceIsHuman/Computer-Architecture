@@ -157,6 +157,9 @@ class CPU:
             ir = self.ram_read(self.pc)
             num_operands = ir >> 6
             instructions[ir]()
+            prevent_pc_update = (ir >> 4) & 1
+            if prevent_pc_update:
+                continue
             self.pc += num_operands + 1
 
     def ram_read(self, mar):
