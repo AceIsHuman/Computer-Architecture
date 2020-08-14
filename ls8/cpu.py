@@ -80,6 +80,8 @@ class CPU:
         MUL  = 0b10100010
         PUSH = 0b01000101
         POP  = 0b01000110
+        CALL = 0b01010000
+        RET  = 0b00010001
 
         def hlt():
             print('Shutting Down... Goodbye')
@@ -98,9 +100,25 @@ class CPU:
         def add():
             operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
             self.alu("ADD", operand_a, operand_b)
+
         def mul():
             operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
             self.alu("MUL", operand_a, operand_b)
+
+        def call():
+            # get address for instruction
+            instruction_address = self.ram_read(self.pc + 1)
+            # get the next instruction address
+            next_address = self.pc + 2
+            ## store in stack
+            self.reg[7] -= 1
+            self.ram_write(next_address, self.reg[7])
+            self.pc = self.reg[instruction_address]
+
+        def ret():
+            ret_address = self.ram_read(self.reg[7])
+            self.pc = ret_address
+            self.reg[7] += 1
 
         def push():
             # decrement stack pointer
@@ -128,6 +146,8 @@ class CPU:
         instructions[MUL] = mul
         instructions[PUSH] = push
         instructions[POP] = pop
+        instructions[CALL] = call
+        instructions[RET] = ret
 
         self.running = True
         # read memory address stored in PC
